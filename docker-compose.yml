@@ -93,8 +93,6 @@ services:
     # do NOT set -1 (unlimited) — that drops the fork-bomb guard. See #636.
     pids_limit: ${OPENWA_PIDS_LIMIT:-2048}
     mem_limit: ${OPENWA_MEM_LIMIT:-2g} # tune up for many concurrent sessions
-    ports:
-      - '${API_PORT:-2785}:2785'
     expose:
       - '2785'
     environment:
