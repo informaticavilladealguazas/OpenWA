@@ -7,6 +7,9 @@ services:
     image: tecnativa/docker-socket-proxy:v0.4.2
     container_name: openwa-docker-proxy
     restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     # Only on the isolated internal network — reachable solely by openwa-api, NOT the
     # dashboard or any other peer. `internal: true` also denies the proxy
     # outbound access; it only needs the locally-mounted docker socket.
@@ -48,6 +51,9 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: openwa-api
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     restart: unless-stopped
     # Give the graceful drain room to complete before Docker SIGKILLs the container: the shutdown
     # grace (SHUTDOWN_DELAY_MS, default 3s) plus the worst-case per-engine teardown bound (~10s) can
