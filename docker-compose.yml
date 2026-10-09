@@ -36,7 +36,7 @@ services:
       #    DockerService then reports Docker unavailable and orchestration degrades gracefully.
       CONTAINERS: 1
       IMAGES: 1
-      VOLUMES: 1
+      ES: 1
       INFO: 1
       PING: 1
       POST: 1
@@ -72,7 +72,7 @@ services:
     # container itself is the confinement boundary. cap_drop ALL + a minimal re-add
     # ONLY for the root entrypoint's chown + gosu privilege-drop; once gosu setuids to
     # the openwa user the node/Chromium process keeps NO effective capabilities.
-    # read_only rootfs (Chromium's profile lives on the writable /app/data volume;
+    # read_only rootfs (Chromium's profile lives on the writable /app/data e;
     # HOME=/tmp + tmpfs absorb stray writes). no-new-privileges blocks setuid escalation.
     # NOTE: requires a live single-session smoke (Chromium must launch) before merge.
     security_opt:
@@ -80,7 +80,7 @@ services:
     cap_drop:
       - ALL
     cap_add:
-      - CHOWN # entrypoint: chown -R openwa /app/data on the named volume
+      - CHOWN # entrypoint: chown -R openwa /app/data on the named e
       - DAC_OVERRIDE # entrypoint: chown across pre-existing files
       - FOWNER
       - SETGID # gosu: drop to the openwa group
@@ -392,7 +392,7 @@ services:
       # Docker socket proxy (openwa-api never touches /var/run/docker.sock directly)
       - DOCKER_HOST=tcp://docker-proxy:2375
     volumes:
-      - /opt/openwa/openwa-data:/app/data
+      - /srv/stacks/openwa/openwa-data:/app/data
       - ./docker-compose.yml:/app/docker-compose.yml:ro
     depends_on:
       docker-proxy:
@@ -448,7 +448,7 @@ services:
       # so the built-in container works zero-config with a custom schema. Ignored when 'public'.
       POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-public}
     volumes:
-      - /opt/openwa/postgres-data:/var/lib/postgresql/data
+      - /srv/stacks/openwa/postgres-data:/var/lib/postgresql/data
       # Runs only on first init (postgres image docker-entrypoint-initdb.d semantics): creates the
       # configured schema and sets the DB default search_path. No-op for 'public'; does not re-run
       # on an already-initialized volume (see the note in scripts/postgres-init-schema.sh).
@@ -476,7 +476,7 @@ services:
     # maxmemory is reached, silently dropping queued jobs.
     command: redis-server --appendonly yes --maxmemory-policy noeviction
     volumes:
-      - /opt/openwa/redis-data:/data
+      - /srv/stacks/openwa/redis-data:/data
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
@@ -505,7 +505,7 @@ services:
       MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-${S3_ACCESS_KEY:-}}
       MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-${S3_SECRET_KEY:-}}
     volumes:
-      - /opt/openwa/minio-data:/data
+      - /srv/stacks/openwa/minio-data:/data
     ports:
       - '127.0.0.1:9000:9000'
       - '127.0.0.1:9001:9001'
